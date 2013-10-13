@@ -1,4 +1,4 @@
-name := "Mars Rover"
+name := "Collectd Coda Hale Metrics Reporter"
 
 version := "1.0"
 
