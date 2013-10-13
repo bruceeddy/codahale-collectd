@@ -6,6 +6,9 @@ import java.util
 import scala.util.Random
 import com.codahale.metrics.jvm._
 
+import scala.collection.JavaConversions._
+import java.io.PrintWriter
+
 /**
  * Created with IntelliJ IDEA.
  * User: bruce
@@ -49,7 +52,7 @@ object Main {
 
            val reporter = new CollectdReporter(registry, "collectd-reporter", MetricFilter.ALL, TimeUnit.SECONDS, TimeUnit.MILLISECONDS)
 
-           reporter.start(5, TimeUnit.SECONDS);
+           reporter.start(2, TimeUnit.SECONDS);
          }
 }
 
@@ -65,7 +68,22 @@ class CollectdReporter(registry: MetricRegistry,
                       histograms: util.SortedMap[String, Histogram],
                       meters: util.SortedMap[String, Meter],
                       timers: util.SortedMap[String, Timer]) = {
-    println(gauges)
+      def gaugeLine(x: (String,Gauge[_])): String = {
+        val key = x._1
+        val gauge = x._2
+        val set = gauge.getClass.getName.split("\\.").reverse.take(2).reverse.mkString(".").split("\\$").head
+        val value = gauge.getValue
+
+        /*PUTVAL "testhost/interface/if_octets-test0" interval=10 1179574444*/
+
+       s"""$set.$key -- $value"""
+      }
+
+      val writer = new PrintWriter("/tmp/out", "UTF-8")
+
+      gauges.foreach(x => {println(gaugeLine(x));writer.write(gaugeLine(x))})
+
+      writer.close()
   }
 
 
