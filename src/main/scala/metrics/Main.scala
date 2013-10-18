@@ -8,6 +8,7 @@ import com.codahale.metrics.jvm._
 
 import scala.collection.JavaConversions._
 import java.io.PrintWriter
+import java.net.InetAddress
 
 /**
  * Created with IntelliJ IDEA.
@@ -50,6 +51,8 @@ object Main {
              .build()*/;
 
 
+           registry.getMetrics
+
            val reporter = new CollectdReporter(registry, "collectd-reporter", MetricFilter.ALL, TimeUnit.SECONDS, TimeUnit.MILLISECONDS)
 
            reporter.start(2, TimeUnit.SECONDS);
@@ -63,27 +66,40 @@ class CollectdReporter(registry: MetricRegistry,
                        rateUnit: TimeUnit,
                        durationUnit: TimeUnit) extends ScheduledReporter(registry, name, filter, rateUnit, durationUnit) {
 
+                            val hostname = InetAddress.getLocalHost.getCanonicalHostName
+                            val appname = "test-app"
+
+  val writer = new PrintWriter("/tmp/in", "UTF-8")
+
+
   override def report(gauges: util.SortedMap[String, Gauge[_]],
                       counters: util.SortedMap[String, Counter],
                       histograms: util.SortedMap[String, Histogram],
                       meters: util.SortedMap[String, Meter],
                       timers: util.SortedMap[String, Timer]) = {
+
+    val timestamp = System.currentTimeMillis
+
       def gaugeLine(x: (String,Gauge[_])): String = {
         val key = x._1
         val gauge = x._2
         val set = gauge.getClass.getName.split("\\.").reverse.take(2).reverse.mkString(".").split("\\$").head
         val value = gauge.getValue
 
+/*
         /*PUTVAL "testhost/interface/if_octets-test0" interval=10 1179574444*/
+                      PUTVAL "shakujiigawa/jvm/gauge-FooMem.foo.mem" 1381702126:3
+*/
 
-       s"""$set.$key -- $value"""
+
+
+       s"""PUTVAL "$hostname/$appname/gauge-$set.$key" $timestamp:$value\n"""
       }
 
-      val writer = new PrintWriter("/tmp/out", "UTF-8")
 
-      gauges.foreach(x => {println(gaugeLine(x));writer.write(gaugeLine(x))})
+      gauges.foreach(x => {print(gaugeLine(x));writer.write(gaugeLine(x))})
 
-      writer.close()
+     // writer.close()
   }
 
 
