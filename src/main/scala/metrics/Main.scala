@@ -9,6 +9,7 @@ import com.codahale.metrics.jvm._
 import scala.collection.JavaConversions._
 import java.io.PrintWriter
 import java.net.InetAddress
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler
 
 /**
  * Created with IntelliJ IDEA.
@@ -44,18 +45,33 @@ object Main {
            registry.register(MetricRegistry.name("filedescriptor", "ratio"),new FileDescriptorRatioGauge)
            registry.registerAll(new MemoryUsageGaugeSet)
 
+           val hostname = InetAddress.getLocalHost.getCanonicalHostName
+           val appname = "test-app"
 
-/*          val reporter = ConsoleReporter.forRegistry(registry)
-             .convertRatesTo(TimeUnit.SECONDS)
-             .convertDurationsTo(TimeUnit.MILLISECONDS)
-             .build()*/;
+           val httpServer = new NettyHttpServer with HttpServerPipelineFactory with HttpHandler with ResponseBody {
+             def body = {
+               val timestamp = System.currentTimeMillis
+
+               def gaugeLine(x: (String,Metric)): String = {
+                 val key = x._1
+                 val gauge = x._2
+                 val set = gauge.getClass.getName.split("\\.").reverse.take(2).reverse.mkString(".").split("\\$").head
+                 val value = gauge.toString
+
+                 /*
+                         /*PUTVAL "testhost/interface/if_octets-test0" interval=10 1179574444*/
+                                       PUTVAL "shakujiigawa/jvm/gauge-FooMem.foo.mem" 1381702126:3
+                 */
 
 
-           registry.getMetrics
 
-           val reporter = new CollectdReporter(registry, "collectd-reporter", MetricFilter.ALL, TimeUnit.SECONDS, TimeUnit.MILLISECONDS)
+                 s"""PUTVAL "$hostname/$appname/gauge-$set.$key" $timestamp:$value\n"""
+               }
 
-           reporter.start(2, TimeUnit.SECONDS);
+               registry.getMetrics.map(gaugeLine).toString
+             }
+           }
+           httpServer.startHttpServer
          }
 }
 
