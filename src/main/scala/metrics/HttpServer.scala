@@ -6,18 +6,8 @@ import java.util.concurrent.Executors
 
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.JavaConversions.asScalaSet
-import scala.collection.JavaConversions.mapAsJavaMap
 
-import org.jboss.netty.bootstrap.ServerBootstrap
 import org.jboss.netty.buffer.ChannelBuffers.copiedBuffer
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory
-import org.jboss.netty.channel.Channel
-import org.jboss.netty.channel.ChannelFutureListener
-import org.jboss.netty.channel.ChannelHandlerContext
-import org.jboss.netty.channel.ChannelPipelineFactory
-import org.jboss.netty.channel.ExceptionEvent
-import org.jboss.netty.channel.MessageEvent
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONNECTION
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
@@ -25,15 +15,6 @@ import org.jboss.netty.handler.codec.http.HttpHeaders.Values.KEEP_ALIVE
 import org.jboss.netty.handler.codec.http.HttpHeaders.isKeepAlive
 import org.jboss.netty.handler.codec.http.HttpResponseStatus.OK
 import org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1
-import org.jboss.netty.handler.codec.http.DefaultHttpResponse
-import org.jboss.netty.handler.codec.http.HttpChunkAggregator
-import org.jboss.netty.handler.codec.http.HttpContentCompressor
-import org.jboss.netty.handler.codec.http.HttpRequest
-import org.jboss.netty.handler.codec.http.HttpRequestDecoder
-import org.jboss.netty.handler.codec.http.HttpResponse
-import org.jboss.netty.handler.codec.http.HttpResponseEncoder
-import org.jboss.netty.handler.codec.http.QueryStringDecoder
-import org.jboss.netty.util.CharsetUtil
 
 import org.jboss.netty.bootstrap.ServerBootstrap
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory
@@ -49,15 +30,9 @@ import org.jboss.netty.handler.codec.http.HttpRequest
 import org.jboss.netty.handler.codec.http.QueryStringDecoder
 import org.jboss.netty.channel.ExceptionEvent
 import org.jboss.netty.channel.Channel
-import org.jboss.netty.handler.codec.http.HttpHeaders._
 import org.jboss.netty.handler.codec.http.HttpResponse
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse
-import org.jboss.netty.handler.codec.http.HttpVersion._
-import org.jboss.netty.handler.codec.http.HttpResponseStatus._
-import org.jboss.netty.buffer.ChannelBuffers._
 import org.jboss.netty.util.CharsetUtil
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
-import org.jboss.netty.handler.codec.http.HttpHeaders.Values._
 import org.jboss.netty.channel.ChannelFutureListener
 
 trait HttpServer {
@@ -114,7 +89,6 @@ trait HttpHandler extends ResponseWriter {
 
       object message {
 
-        import scala.collection.JavaConversions.mapAsJavaMap
 
         val queryDecoder = new QueryStringDecoder(request.getUri())
         val rawParams = queryDecoder.getParameters
