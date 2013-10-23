@@ -3,7 +3,7 @@ package metrics
 
 import java.net.InetSocketAddress
 import java.util.concurrent.Executors
-
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.JavaConversions.asScalaSet
 
@@ -34,6 +34,7 @@ import org.jboss.netty.handler.codec.http.HttpResponse
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse
 import org.jboss.netty.util.CharsetUtil
 import org.jboss.netty.channel.ChannelFutureListener
+import scala.concurrent.Future
 
 trait HttpServer {
   def startHttpServer: Unit
@@ -75,7 +76,7 @@ trait HttpServerPipelineFactory extends ChannelPipelineFactory {
 }
 
 trait ResponseBody {
-  def body: String
+  def body: Future[String]
 }
 
 trait HttpHandler extends ResponseWriter {
@@ -101,7 +102,7 @@ trait HttpHandler extends ResponseWriter {
 
       }
 
-      writeResponse(request, e.getChannel, body)
+      body.map(writeResponse(request, e.getChannel, _))
     }
 
 

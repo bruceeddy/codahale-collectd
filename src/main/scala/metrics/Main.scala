@@ -8,6 +8,8 @@ import com.codahale.metrics.jvm._
 
 import scala.collection.JavaConversions._
 import java.net.InetAddress
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Main {
 
@@ -46,7 +48,7 @@ object Main {
           s"""PUTVAL "$hostname/$appname/gauge-$set.$key" $timestamp:$value\n"""
         }
 
-        registry.getMetrics.map(gaugeLine).toString
+        Future.apply(registry.getMetrics.map(gaugeLine).toString)
       }
     }
     httpServer.startHttpServer
