@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
  "org.mockito" % "mockito-core" % "1.9.0" % "test"  ,
  "com.codahale.metrics" % "metrics-jvm" % "3.0.1" ,
  "com.codahale.metrics" % "metrics-json" % "3.0.1",
- "io.netty" % "netty" % "3.5.1.Final"
+ "com.github.jnr" % "jnr-unixsocket" % "0.3"
 )
  
 
