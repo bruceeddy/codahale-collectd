@@ -1,15 +1,15 @@
 package metrics
 
 import com.codahale.metrics._
-import java.util.concurrent.{TimeUnit, ArrayBlockingQueue}
+import java.util.concurrent.{ TimeUnit, ArrayBlockingQueue }
 import java.util
 import scala.util.Random
 import com.codahale.metrics.jvm._
 
 import scala.collection.JavaConversions._
-import java.io.{File, PrintWriter}
+import java.io.{ File, PrintWriter }
 import java.net.InetAddress
-import jnr.unixsocket.{UnixSocketChannel, UnixSocketAddress}
+import jnr.unixsocket.{ UnixSocketChannel, UnixSocketAddress }
 import java.nio.channels.Channels
 
 object Main {
@@ -19,9 +19,7 @@ object Main {
 LISTVAL
            $cat /tmp/out */
 
-
   val registry = new MetricRegistry
-
 
   def main(args: Array[String]) = {
     doTheThing
@@ -34,8 +32,7 @@ LISTVAL
     registry.register(MetricRegistry.name("queue", "size"),
       new Gauge[Integer] {
         override def getValue = queue.size
-      }
-    )
+      })
 
     queuePlay.start(queue)
 
@@ -47,46 +44,42 @@ LISTVAL
     val hostname = InetAddress.getLocalHost.getCanonicalHostName
     val appname = "test-app"
 
-
     val reporter = new CollectdReporter(makeSocket, registry, "collectd-reporter", MetricFilter.ALL, TimeUnit.SECONDS, TimeUnit.MILLISECONDS)
 
     reporter.start(2, TimeUnit.SECONDS);
   }
 
   def makeSocket: UnixSocketChannel = {
-val socketName = "/tmp/test.sock"
-  val path = new File(socketName)
-  val address: UnixSocketAddress = new UnixSocketAddress(path)
-  val channel: UnixSocketChannel = UnixSocketChannel.open(address)
-  System.out.println("connected to " + channel.getRemoteSocketAddress)
-channel 
+    val socketName = "/tmp/test.sock"
+    val path = new File(socketName)
+    val address: UnixSocketAddress = new UnixSocketAddress(path)
+    val channel: UnixSocketChannel = UnixSocketChannel.open(address)
+    System.out.println("connected to " + channel.getRemoteSocketAddress)
+    channel
   }
 }
 
-
-
 class CollectdReporter(socket: UnixSocketChannel,
   registry: MetricRegistry,
-                       name: String,
-                       filter: MetricFilter,
-                       rateUnit: TimeUnit,
-                       durationUnit: TimeUnit) extends ScheduledReporter(registry, name, filter, rateUnit, durationUnit) {
+  name: String,
+  filter: MetricFilter,
+  rateUnit: TimeUnit,
+  durationUnit: TimeUnit) extends ScheduledReporter(registry, name, filter, rateUnit, durationUnit) {
 
   val hostname = InetAddress.getLocalHost.getCanonicalHostName
   val appname = "test-app"
 
-   val writer: PrintWriter = new PrintWriter(Channels.newOutputStream(socket))
+  val writer: PrintWriter = new PrintWriter(Channels.newOutputStream(socket))
 
   var count = 0;
 
   override def report(gauges: util.SortedMap[String, Gauge[_]],
-                      counters: util.SortedMap[String, Counter],
-                      histograms: util.SortedMap[String, Histogram],
-                      meters: util.SortedMap[String, Meter],
-                      timers: util.SortedMap[String, Timer]) = {
+    counters: util.SortedMap[String, Counter],
+    histograms: util.SortedMap[String, Histogram],
+    meters: util.SortedMap[String, Meter],
+    timers: util.SortedMap[String, Timer]) = {
 
     val timestamp = System.currentTimeMillis
-
 
     def gaugeLine(x: (String, Gauge[_])): String = {
       val key = x._1
@@ -99,20 +92,17 @@ class CollectdReporter(socket: UnixSocketChannel,
                             PUTVAL "shakujiigawa/jvm/gauge-FooMem.foo.mem" 1381702126:3
       */
 
-
       s"""PUTVAL "$hostname/$appname/gauge-$set.$key" $timestamp:$value\n"""
     }
-
 
     writer.write(s"count: $count\n")
     writer.flush
     println(s"count: $count")
-//    writer.write("bar")
-//    writer.flush
-    count+=1
+    //    writer.write("bar")
+    //    writer.flush
+    count += 1
 
-
-   /* gauges.foreach(x => {
+    /* gauges.foreach(x => {
       print(gaugeLine(x));
       writer.write(gaugeLine(x))
       writer.flush
@@ -120,7 +110,6 @@ class CollectdReporter(socket: UnixSocketChannel,
 
     // writer.close()
   }
-
 
 }
 
