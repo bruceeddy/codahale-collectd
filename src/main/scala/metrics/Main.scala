@@ -46,7 +46,15 @@ LISTVAL
 
     val reporter = new CollectdReporter(makeSocket, registry, "collectd-reporter", MetricFilter.ALL, TimeUnit.SECONDS, TimeUnit.MILLISECONDS)
 
+
+    println("started")
     reporter.start(2, TimeUnit.SECONDS);
+    
+    Thread.sleep(5000)
+    println("stopping")
+    reporter.stop
+println("Stopped")
+System.exit(0)
   }
 
   def makeSocket: UnixSocketChannel = {
@@ -95,18 +103,18 @@ class CollectdReporter(socket: UnixSocketChannel,
       s"""PUTVAL "$hostname/$appname/gauge-$set.$key" $timestamp:$value\n"""
     }
 
-    writer.write(s"count: $count\n")
-    writer.flush
-    println(s"count: $count")
+ //   writer.write(s"count: $count\n")
+   // writer.flush
+   // println(s"count: $count")
     //    writer.write("bar")
     //    writer.flush
-    count += 1
+   // count += 1
 
-    /* gauges.foreach(x => {
+     gauges.foreach(x => {
       print(gaugeLine(x));
       writer.write(gaugeLine(x))
       writer.flush
-    })*/
+    })
 
     // writer.close()
   }
