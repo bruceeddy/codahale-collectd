@@ -1,0 +1,25 @@
+1.
+
+M***d
+MyDad
+Mould
+MyBad
+Mused
+Muted
+Moved
+
+
+url
+	validate
+	canonicalise
+	fetch info from web
+	write to persistant storage
+	send message to client
+
+public void processUrl(String url)  {
+       validate(url)
+       String canonical = canonicalise(url)
+       URLData
+}
+
+

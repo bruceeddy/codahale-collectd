@@ -1,0 +1,22 @@
+
+object BirdmanAndPole {
+
+  type Birds = Int
+  type Pole = (Birds, Birds)
+
+  val landLeft: ((Birds, Pole) => Option[Pole]) = (n: Birds, pole: Pole) => pole match {
+    case (left, right) if (Math.abs((left + n) - right) < 4) => Some((left + n, right))
+    case _ => None
+  }
+  val landRight: ((Birds, Pole) => Option[Pole]) = (n: Birds, pole: Pole) => pole match {
+    case (left, right) if (Math.abs(left - (right + n)) < 4) => Some((left + n, right))
+    case _ => None
+  }
+
+
+
+
+
+
+
+}
